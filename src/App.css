@@ -1,0 +1,214 @@
+
+.content {margin-top: 77px;}
+
+.left-bar{
+  position: absolute;
+  top:0;
+  left:0;
+  height: 100vh;
+  width:4cm;
+  background: linear-gradient(to left, rgba(10, 10, 10, 0), rgb(1, 2, 2));
+  margin: 0;
+  padding: 0;
+  opacity:0;
+  font-size: 5rem;
+  
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+.leftbt{top: 45vh;
+  position: absolute;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  font-size: 5rem;
+  color: rgba(255, 255, 255, 0.712);
+  z-index: 100;
+}
+.rightbt{top: 45vh;
+  right: 0;
+  position: absolute;
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  font-size: 5rem;
+  color: rgba(255, 255, 255, 0.712);
+  z-index: 100;
+}
+.right-bar{
+  position: absolute;
+  top:0;
+  right:0;
+  height: 100vh;
+  width:4cm;
+  background: linear-gradient(to right, rgba(3, 11, 20, 0), rgb(1, 2, 2));
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  font-size: 5rem;
+  color: rgba(255, 255, 255, 0.712);
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+.down-bar{
+  position: absolute;
+  right:0;
+  left:0;
+  bottom: 0;
+  height: 200px;
+  background: linear-gradient(to bottom, rgba(3, 11, 20, 0), rgb(1, 2, 2));
+  margin: 0;
+  padding: 0;
+  opacity: 0;
+  font-size: 8rem;
+  color: rgba(255, 255, 255, 0.712);
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+.minus{
+  height: 5px;
+  width: 40px;
+  border-radius: 4px;
+  background-color: white;
+}
+.right-bar:hover{opacity: 1;}
+.left-bar:hover{opacity: 1;}
+.down-bar:hover{opacity: 1;}
+.leftbt:hover~.left-bar{opacity: 1;}
+.rightbt:hover~.right-bar{opacity: 1;}
+
+
+
+/* Ensure transition works for transform and opacity */
+.image-container.shutter-close {
+  transform: translateY(-100%); /* Move off-screen upwards */
+  opacity: 0; /* Fade out */
+  transition: transform 0.5s ease, opacity 0.5s ease; /* Ensure transition applies */
+}
+
+
+  /* Current image slides out to the left */
+/* Current image slides out to the left */
+.image-container-wrapper {
+  position: fixed;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+ 
+}
+
+.image-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center top;
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+ object-position:top; 
+}
+
+/* Outgoing Animations */
+@keyframes slide-out-right {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+}
+
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(30%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-out-left {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slide-in-left {
+  0% {
+    transform: translateX(-30%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.image-container.slide-out-right {
+  animation: slide-out-right 0.5s ease-in-out;
+}
+
+.image-container.slide-in-right {
+  animation: slide-in-right 0.5s ease-in-out;
+}
+
+.image-container.slide-out-left {
+  animation: slide-out-left 0.5s ease-in-out;
+}
+
+.image-container.slide-in-left {
+  animation: slide-in-left 0.5s ease-in-out;
+}
+.nav{background-color: #1e3e83;
+padding:1rem;
+position: fixed;
+z-index: 9999;
+margin-top: 0px;
+width: 100%;
+top: 0;
+left: 0;
+overflow: visible; 
+box-sizing: border-box;
+}
+body {
+  /* Add padding equal to the scrollbar width to avoid overlap */
+  padding-right: 17px; /* Typical scrollbar width, adjust if necessary */
+}
+html, body {
+  margin: 0;
+  padding: 0;
+  overflow: auto; /* Ensure scrollbar behavior is consistent */
+}
+
+li {list-style: none;
+  
+}
+li a{
+text-decoration: none;
+font-size: 30px;
+color: aliceblue;
+}
+.menu {
+  display: flex;
+  justify-content: space-around;
+  align-items: center; /* Ensures vertical alignment */
+  margin: 0;
+  padding: 0;
+  width: 100%; /* Ensures full width for flex container */
+}
+
+li a:hover{font-size: 30.5px;
+color: #76ABDF}
