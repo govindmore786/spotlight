@@ -17,6 +17,7 @@ function Carousel() {
   const { imagesHidden, setImagesHidden } = useAppContext();
   const [uploadedReviews, setUploadedReviews] = useState([]);
   const [showReviews, setShowReviews] = useState(false);
+  const [expandedReviews, setExpandedReviews] = useState({});
 
   const triggerAnimation = (newDirection, newIndex) => {
     setDirection(newDirection);
@@ -42,78 +43,175 @@ function Carousel() {
     triggerAnimation("right", newIndex);
   };
 
-  const up = () => {
+  const hideImages = () => {
     console.log("Hiding images...");
     setImagesHidden(true);
   };
 
-  // Fetch uploaded reviews from the server
   useEffect(() => {
     if (imagesHidden) {
-      // Fetch reviews immediately after images are hidden
       const fetchReviews = async () => {
         try {
           const response = await fetch("http://localhost:5000/display");
           const data = await response.json();
           console.log("Fetched Reviews:", data);
-          setUploadedReviews(Array.isArray(data) ? data : []); // Ensure it's an array
+          setUploadedReviews(Array.isArray(data) ? data : []);
         } catch (error) {
           console.error("Error fetching reviews:", error);
-          setUploadedReviews([]); // Set as empty array on error
+          setUploadedReviews([]);
         }
       };
 
       fetchReviews();
-
-      // Delay showing reviews until the animation completes (e.g., 1 second)
       const delayToShowReviews = setTimeout(() => {
         setShowReviews(true);
-      }, 400); // Adjust delay to match animation duration
+      }, 400);
 
-      // Cleanup timer
       return () => clearTimeout(delayToShowReviews);
     }
   }, [imagesHidden]);
 
+  const toggleReadMore = (index) => {
+    setExpandedReviews((prev) => ({
+      ...prev,
+      [index]: !prev[index],
+    }));
+  };
+
   return (
     <div>
       {showReviews ? (
-        <div>
+        <div className="reviews-container">
           <h1>Uploaded Reviews</h1>
-          <div id="reviewGallery">
+          <div className="reviews-gallery">
             {Array.isArray(uploadedReviews) && uploadedReviews.length > 0 ? (
-              uploadedReviews.map((review, index) => (
-                <div key={index} style={{ margin: "20px 0" }}>
-                  <h3>Review {index + 1}</h3>
-                  <p>{review.text}</p>
-                  <div>
-                    {review.images &&
-                      review.images.map((url, imgIndex) => (
-                        <img
-                          key={imgIndex}
-                          src={url}
-                          alt={`Uploaded image ${imgIndex}`}
-                          style={{
-                            width: "200px",
-                            margin: "10px",
-                            height: "100px",
-                          }}
-                        />
-                      ))}
-                  </div>
-                  <div>
-                    {review.videos &&
-                      review.videos.map((url, vidIndex) => (
-                        <div key={vidIndex} style={{ margin: "10px" }}>
-                          <video width="200" height="100" controls>
-                            <source src={url} type="video/mp4" />
-                            Your browser does not support the video tag.
-                          </video>
+              uploadedReviews.map((review, index) => {
+                const words = review.content.split(" ");
+                const shouldTruncate = words.length > 20;
+                const displayedContent = expandedReviews[index]
+                  ? review.content
+                  : words.slice(0, 20).join(" ") + "...";
+
+                return (
+                  <div key={index} className="review-card">
+                    <h3>Review by {review.userName}</h3>
+                    <p>
+                      {displayedContent}
+                      {shouldTruncate && (
+                        <button onClick={() => toggleReadMore(index)}>
+                          {expandedReviews[index] ? "Read Less" : "Read More"}
+                        </button>
+                      )}
+                    </p>
+                    <div className="media-container">
+                      {/* Image Carousel */}
+                      {review.imageUrl && review.imageUrl.length > 0 && (
+                        <div
+                          id={`imageCarousel${index}`}
+                          className="carousel slide"
+                          data-bs-ride="carousel"
+                        >
+                          <div className="carousel-inner">
+                            {review.imageUrl.map((url, imgIndex) => (
+                              <div
+                                key={imgIndex}
+                                className={`carousel-item ${
+                                  imgIndex === 0 ? "active" : ""
+                                }`}
+                              >
+                                <img
+                                  src={url}
+                                  className="d-block w-100"
+                                  alt={`Uploaded ${imgIndex}`}
+                                  height={200}
+                                />
+                              </div>
+                            ))}
+                          </div>
+                          {review.imageUrl.length > 1 && (
+      <>
+                          <button
+                            className="carousel-control-prev"
+                            type="button"
+                            data-bs-target={`#imageCarousel${index}`}
+                            data-bs-slide="prev"
+                          >
+                            <span
+                              className="carousel-control-prev-icon"
+                              aria-hidden="true"
+                            ></span>
+                            <span className="visually-hidden">Previous</span>
+                          </button>
+                          <button
+                            className="carousel-control-next"
+                            type="button"
+                            data-bs-target={`#imageCarousel${index}`}
+                            data-bs-slide="next"
+                          >
+                            <span
+                              className="carousel-control-next-icon"
+                              aria-hidden="true"
+                            ></span>
+                            <span className="visually-hidden">Next</span>
+                          </button> </>)}
                         </div>
-                      ))}
+                      )}
+
+                      {/* Video Carousel */}
+                      {review.videoUrl && review.videoUrl.length > 0 && (
+                        <div
+                          id={`videoCarousel${index}`}
+                          className="carousel slide"
+                          data-bs-ride="carousel"
+                        >
+                          <div className="carousel-inner">
+                            {review.videoUrl.map((url, vidIndex) => (
+                              <div
+                                key={vidIndex}
+                                className={`carousel-item ${
+                                  vidIndex === 0 ? "active" : ""
+                                }`}
+                              >
+                                <video controls className="d-block w-100">
+                                  <source src={url} type="video/mp4" />
+                                  Your browser does not support the video tag.
+                                </video>
+                              </div>
+                            ))}
+                          </div>
+                          {review.videoUrl.length > 1 && (
+      <>
+                          <button
+                            className="carousel-control-prev"
+                            type="button"
+                            data-bs-target={`#videoCarousel${index}`}
+                            data-bs-slide="prev"
+                          >
+                            <span
+                              className="carousel-control-prev-icon"
+                              aria-hidden="true"
+                            ></span>
+                            <span className="visually-hidden">Previous</span>
+                          </button>
+                          <button
+                            className="carousel-control-next"
+                            type="button"
+                            data-bs-target={`#videoCarousel${index}`}
+                            data-bs-slide="next"
+                          >
+                            <span
+                              className="carousel-control-next-icon"
+                              aria-hidden="true"
+                            ></span>
+                            <span className="visually-hidden">Next</span>
+                          </button>
+                          </>)}
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <p>No reviews found or invalid data.</p>
             )}
@@ -125,14 +223,10 @@ function Carousel() {
             <div
               className={`image-container ${
                 imagesHidden ? "shutter-close" : ""
-              } ${
-                isAnimating && direction === "left" ? "slide-out-left" : ""
-              } ${
+              } ${isAnimating && direction === "left" ? "slide-out-left" : ""} ${
                 isAnimating && direction === "right" ? "slide-out-right" : ""
               }`}
-              style={{
-                backgroundImage: `url(${images[currentIndex]})`,
-              }}
+              style={{ backgroundImage: `url(${images[currentIndex]})` }}
             >
               <div className="leftbt" onClick={prevImage}>
                 <ion-icon name="caret-back-outline"></ion-icon>
@@ -142,20 +236,19 @@ function Carousel() {
               </div>
               <div className="left-bar" onClick={prevImage}></div>
               <div className="right-bar" onClick={nextImage}></div>
-              <div className="down-bar" onClick={up}>
-                <div className="minus"></div>
-              </div>
+              <div className="ups" onClick={hideImages}>
+                <ion-icon name="chevron-up-outline"></ion-icon></div>
+              <div className="down-bar" onClick={hideImages}></div>
+              
+              
             </div>
           )}
-
           {nextIndex !== null && (
             <div
               className={`image-container ${
                 direction === "left" ? "slide-in-left" : "slide-in-right"
               }`}
-              style={{
-                backgroundImage: `url(${images[nextIndex]})`,
-              }}
+              style={{ backgroundImage: `url(${images[nextIndex]})` }}
             ></div>
           )}
         </div>

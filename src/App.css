@@ -1,5 +1,6 @@
 
-.content {margin-top: 77px;}
+.content {margin-top: 77px;
+background-color: #CBDCEB;}
 
 .left-bar{
   position: absolute;
@@ -36,6 +37,21 @@
   color: rgba(255, 255, 255, 0.712);
   z-index: 100;
 }
+.ups {
+  position: absolute;
+  bottom: 10vh; /* Adjust this value as needed */
+  left: 50%;
+  transform: translateX(-50%);
+  
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  font-size: 5rem;
+  color: rgba(255, 255, 255, 0.712);
+  z-index: 100;
+}
+
 .right-bar{
   position: absolute;
   top:0;
@@ -79,6 +95,7 @@
 .down-bar:hover{opacity: 1;}
 .leftbt:hover~.left-bar{opacity: 1;}
 .rightbt:hover~.right-bar{opacity: 1;}
+.ups:hover~.down-bar{opacity: 1;}
 
 
 
@@ -97,7 +114,7 @@
   width: 100%;
   height: 100vh;
   overflow: hidden;
- 
+ z-index: 9000;
 }
 
 .image-container {
@@ -175,22 +192,24 @@
 .nav{background-color: #1e3e83;
 padding:1rem;
 position: fixed;
-z-index: 9999;
+z-index: 10000;
 margin-top: 0px;
 width: 100%;
 top: 0;
 left: 0;
+right: 0;
 overflow: visible; 
 box-sizing: border-box;
 }
 body {
   /* Add padding equal to the scrollbar width to avoid overlap */
-  padding-right: 17px; /* Typical scrollbar width, adjust if necessary */
-}
+  padding-right: 17px;
+  margin: 0; /* Typical scrollbar width, adjust if necessary */
+
+overflow: auto;}
 html, body {
-  margin: 0;
-  padding: 0;
-  overflow: auto; /* Ensure scrollbar behavior is consistent */
+ 
+ overflow-x: hidden; /* Ensure scrollbar behavior is consistent */
 }
 
 li {list-style: none;
@@ -212,3 +231,71 @@ color: aliceblue;
 
 li a:hover{font-size: 30.5px;
 color: #76ABDF}
+body::-webkit-scrollbar {
+  width: 0px; /* Make scrollbar thinner */
+  
+}
+
+body::-webkit-scrollbar-track {
+  background: transparent; /* Makes track blend with navbar */
+}
+
+body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.5); /* Semi-transparent scrollbar */
+  border-radius: 5px;
+}
+.content-wrapper {
+  margin-top: 80px; /* Same as navbar height */
+}
+
+.review-media{
+  max-width: 100%;
+  height: 400px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 10px;
+  
+}
+.reviews-container {
+  margin-top: 20px;
+  padding: 20px;
+  
+}
+
+.reviews-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
+  justify-content: center;
+}
+
+.review-card {
+  background: #EEEEEE;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+}
+
+.review-card:hover {
+  transform: scale(1.03);
+}
+
+/* Media */
+.review-media {
+  width: 100%;
+  border-radius: 5px;
+  margin-top: 10px;
+}
+
+.video-wrapper {
+  margin-top: 10px;
+  text-align: center;
+}
+.carousel-control-prev-icon {
+  filter: invert(100%);
+}
+.carousel-control-next-icon {
+  filter: invert(100%);
+}
+.carousel{margin: 10px;}

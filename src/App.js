@@ -1,36 +1,43 @@
-// App.js
 import React, { useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Link,useNavigate } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Link, useNavigate, Navigate } from "react-router-dom";
 import "./App.css";
 import Carousel from "./Carousel";
 import Review from "./Review";
 import Login from "./Login";
 import { AppProvider } from "./AppContext";
+import { LoginProvider } from "./LoginContext";
 
 function App() {
   return (
     <AppProvider>
-      <Router>
-        <Main />
-      </Router>
+      <LoginProvider>
+        <Router>
+          <Main />
+        </Router>
+      </LoginProvider>
     </AppProvider>
   );
 }
+
 function Main() {
   const navigate = useNavigate(); // useNavigate hook to handle navigation
-  document.body.style.paddingRight = `${window.innerWidth - document.documentElement.clientWidth}px`;
 
+  // Dynamically adjust padding-right to account for scrollbar width
   useEffect(() => {
-    // Dynamically adjust padding-right to account for scrollbar width
     const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth;
     document.body.style.paddingRight = `${scrollbarWidth}px`;
   }, []);
+
+  // Redirect to /home when the page is loaded or reloaded
   useEffect(() => {
-    // Redirect to /home when the page is loaded or reloaded
-    if (window.location.pathname !== '/home') {
-      navigate("/home");
+    const currentPath = window.location.pathname;
+    console.log("Current Path:", currentPath); // Debugging
+    if (currentPath === "/") {
+      console.log("Redirecting to /home"); // Debugging
+      navigate("/home", { replace: true });
     }
-  }, []);
+  }, [navigate]);
+
   return (
     <div>
       {/* Navigation Menu */}
@@ -39,35 +46,50 @@ function Main() {
           <li>
             <Link to="/home">Home</Link>
           </li>
-       
           <li className="dropdown">
-        <a href="#home" data-bs-toggle="dropdown" aria-expanded="false">Places</a>
-        <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="#">Action</a></li>
-            <li><a class="dropdown-item" href="#">Another action</a></li>
-            <li><a class="dropdown-item" href="#">Something else here</a></li>
-        </ul>
-    </li>
-    <li>
-            <Link to="/review">Write a review</Link>
+            <a href="#home" data-bs-toggle="dropdown" aria-expanded="false">
+              Places
+            </a>
+            <ul className="dropdown-menu">
+              <li>
+                <a className="dropdown-item" href="#">
+                  Action
+                </a>
+              </li>
+              <li>
+                <a className="dropdown-item" href="#">
+                  Another action
+                </a>
+              </li>
+              <li>
+                <a className="dropdown-item" href="#">
+                  Something else here
+                </a>
+              </li>
+            </ul>
           </li>
           <li>
-            <Link to="/login">Log In</Link>
+            <Link to="/review1">Write a review</Link>
+          </li>
+          <li>
+            <Link to="/login">Sign Up</Link>
           </li>
         </ul>
       </div>
 
+      {/* Content Area */}
       <div className="content">
-      <Routes>
-        <Route path="/home" element={<Carousel/>} />
-        <Route path="/review" element={<Review />} />
-        <Route path="/write-rev" element={<Carousel />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
+        <Routes>
+          <Route path="/home" element={<Carousel />} />
+          <Route path="/review" element={<Review />} />
+          <Route path="/write-rev" element={<Carousel />} />
+          <Route path="/review1" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="*" element={<Navigate to="/home" replace />} /> {/* Fallback route */}
+        </Routes>
       </div>
     </div>
   );
 }
-
 
 export default App;

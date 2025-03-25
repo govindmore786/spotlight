@@ -1,102 +1,144 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { useLogin } from "./LoginContext";
+import "./Review.css"; // Import the CSS file
 
 function Review() {
     const [status, setStatus] = useState("");
     const [images, setImages] = useState([]);
     const [videos, setVideos] = useState([]);
     const [review, setReview] = useState("");
+    const [isUploading, setIsUploading] = useState(false);
+    const navigate = useNavigate();
+    const { isnav } = useLogin();
+
+    const imageInputRef = useRef(null);
+    const videoInputRef = useRef(null);
+
+    useEffect(() => {
+        if (!isnav) {
+            navigate("/login");
+        }
+    }, [navigate, isnav]);
+
+    const handleImagesChange = (event) => {
+        const files = Array.from(event.target.files);
+        if (files.length === 0) return;
+        setImages((prevImages) => [...prevImages, ...files]);
+    };
+
+    const handleVideosChange = (event) => {
+        const files = Array.from(event.target.files);
+        if (files.length === 0) return;
+        setVideos((prevVideos) => [...prevVideos, ...files]);
+    };
 
     const handleFileUpload = async (event) => {
         event.preventDefault();
 
+        if (images.length === 0 && videos.length === 0) {
+            setStatus("Please select at least one file.");
+            return;
+        }
+
         const formData = new FormData();
-
-        // Add images to the form data
-        for (let i = 0; i < images.length; i++) {
-            formData.append("files", images[i]);
-        }
-
-        // Add videos to the form data
-        for (let i = 0; i < videos.length; i++) {
-            formData.append("files", videos[i]);
-        }
-
-        // Add review text to the form data
-        formData.append("review", review);
+        images.forEach((image) => formData.append("images", image));
+        videos.forEach((video) => formData.append("videos", video));
+        formData.append("content", review);
+        formData.append("userId", localStorage.getItem("userId"));
 
         try {
+            setIsUploading(true);
             setStatus("Uploading...");
+
             const response = await fetch("http://localhost:5000/upload", {
                 method: "POST",
                 body: formData,
             });
-            const result = await response.json();
 
+            const result = await response.json();
             if (response.ok) {
-                setStatus(`Upload successful!`);
+                setStatus("Uploaded successfully!");
                 console.log("Uploaded Data:", result);
+
+                // Reset form
+                setImages([]);
+                setVideos([]);
+                setReview("");
+                if (imageInputRef.current) imageInputRef.current.value = "";
+                if (videoInputRef.current) videoInputRef.current.value = "";
             } else {
-                setStatus(`Error: ${result.message}`);
+                setStatus(`Error: ${result.message || "Upload failed"}`);
             }
         } catch (error) {
             setStatus(`Error: ${error.message}`);
+        } finally {
+            setIsUploading(false);
         }
     };
 
-    const handleImagesChange = (event) => {
-        setImages(event.target.files);
-    };
-
-    const handleVideosChange = (event) => {
-        setVideos(event.target.files);
-    };
-
-    const handleReviewChange = (event) => {
-        setReview(event.target.value);
-    };
-
     return (
-        <div>
-            <h1>Upload Files and Write Review</h1>
+        <div className="upload-container">
+            <h1>Upload Files & Write a Review</h1>
+            <div className="inner">
             <form id="uploadForm" encType="multipart/form-data" onSubmit={handleFileUpload}>
-                <div>
-                    <label htmlFor="imageInput">Select Images:</label>
-                    <input
-                        type="file"
+                {/* Image Upload */}
+                <fieldset className="form-group">
+                    <legend>Upload Images</legend>
+                    <input 
+                        type="file" 
                         name="images"
-                        id="imageInput"
-                        multiple
-                        accept="image/*"
-                        onChange={handleImagesChange}
+                        multiple 
+                        accept="image/*" 
+                        onChange={handleImagesChange} 
+                        ref={imageInputRef} 
+                        disabled={isUploading}
                     />
-                </div>
+                    <div className="preview-container">
+                        {images.map((img, index) => (
+                            <img key={index} src={URL.createObjectURL(img)} alt="Preview" className="preview-image" />
+                        ))}
+                    </div>
+                </fieldset>
 
-                <div>
-                    <label htmlFor="videoInput">Select Videos:</label>
-                    <input
-                        type="file"
-                        name="videos"
-                        id="videoInput"
-                        accept="video/*"
-                        multiple
-                        onChange={handleVideosChange}
+                {/* Video Upload */}
+                <fieldset className="form-group">
+                    <legend>Upload Videos</legend>
+                    <input 
+                        type="file" 
+                        multiple 
+                        accept="video/*" 
+                        onChange={handleVideosChange} 
+                        ref={videoInputRef} 
+                        disabled={isUploading}
                     />
-                </div>
+                    <div className="preview-container">
+                        {videos.map((vid, index) => (
+                            <video key={index} controls className="preview-video">
+                                <source src={URL.createObjectURL(vid)} type={vid.type} />
+                            </video>
+                        ))}
+                    </div>
+                </fieldset>
 
-                <div>
-                    <label htmlFor="reviewInput">Write your review:</label>
-                    <textarea
-                        id="reviewInput"
-                        value={review}
-                        onChange={handleReviewChange}
+                {/* Review Input */}
+                <fieldset className="form-group">
+                    <legend>Write your review</legend>
+                    <textarea 
+                        value={review} 
+                        onChange={(e) => setReview(e.target.value)} 
                         placeholder="Write your review here..."
+                        disabled={isUploading}
                     ></textarea>
-                </div>
+                </fieldset>
 
-                <button type="submit">Upload</button>
+                <button type="submit" className="upload-button" disabled={isUploading}>
+                    {isUploading ? "Uploading..." : "Upload"}
+                </button>
             </form>
 
-            <p id="status">{status}</p>
+            <p id="status" className="status-message">{status}</p>
+        </div>
         </div>
     );
 }
